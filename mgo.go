@@ -1,8 +1,8 @@
 package dal
 
 import (
-	"labix.org/v2/mgo"
-	"labix.org/v2/mgo/bson"
+	"github.com/goincremental/dal/Godeps/_workspace/src/labix.org/v2/mgo"
+	"github.com/goincremental/dal/Godeps/_workspace/src/labix.org/v2/mgo/bson"
 	"log"
 )
 
