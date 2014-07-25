@@ -3,6 +3,7 @@ package dal
 import (
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
+	"log"
 )
 
 type iter struct {
@@ -38,13 +39,47 @@ func (q *query) Sort(s ...string) Query {
 }
 
 type collection struct {
-	Collection
 	col *mgo.Collection
 }
 
 func (c *collection) Find(b BSON) Query {
 	q := c.col.Find(b)
 	return &query{query: q}
+}
+
+func (c *collection) EnsureIndex(index Index) error {
+	i := mgo.Index{
+		Key:         index.Key,
+		Background:  index.Background,
+		Sparse:      index.Sparse,
+		ExpireAfter: index.ExpireAfter,
+	}
+	return c.col.EnsureIndex(i)
+}
+
+func (c *collection) FindId(id interface{}) Query {
+	q := c.col.FindId(id)
+	return &query{query: q}
+}
+
+func (c *collection) RemoveId(id interface{}) error {
+	return c.col.RemoveId(id)
+}
+
+func (c *collection) UpsertId(id interface{}, update interface{}) (*ChangeInfo, error) {
+	log.Printf("upsertId")
+	mci, err := c.col.UpsertId(id, update)
+	if err != nil {
+		log.Printf("error upserting %s\n", err)
+	}
+	ci := &ChangeInfo{}
+	if mci != nil {
+		ci.Updated = mci.Updated
+		ci.Removed = mci.Removed
+		ci.UpsertedId = mci.UpsertedId
+	}
+	log.Printf("change info %s", ci)
+	return ci, err
 }
 
 type database struct {
@@ -81,6 +116,7 @@ type dal struct {
 }
 
 func (d *dal) Connect(s string) (Session, error) {
+	log.Printf("Connect: %s\n", s)
 	mgoSession, err := mgo.Dial(s)
 	return &session{mgoSession: mgoSession}, err
 }
@@ -101,4 +137,16 @@ func (id ObjectId) Hex() string {
 
 func (id ObjectId) Valid() bool {
 	return bson.ObjectId(id).Valid()
+}
+
+func ObjectIdHex(s string) ObjectId {
+	return ObjectId(bson.ObjectIdHex(s))
+}
+
+func IsObjectIdHex(s string) bool {
+	return bson.IsObjectIdHex(s)
+}
+
+func NewObjectId() ObjectId {
+	return ObjectId(bson.NewObjectId())
 }

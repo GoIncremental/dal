@@ -2,6 +2,7 @@ package dal
 
 import (
 	"errors"
+	"time"
 )
 
 var ErrNotFound = errors.New("ErrNotFound")
@@ -10,6 +11,7 @@ type BSON map[string]interface{}
 
 type DAL interface {
 	Connect(string) (Session, error)
+	IsObjectIdHex(string) bool
 }
 
 type Session interface {
@@ -24,6 +26,10 @@ type Database interface {
 
 type Collection interface {
 	Find(BSON) Query
+	EnsureIndex(Index) error
+	FindId(interface{}) Query
+	RemoveId(interface{}) error
+	UpsertId(interface{}, interface{}) (*ChangeInfo, error)
 }
 
 type Query interface {
@@ -34,4 +40,17 @@ type Query interface {
 
 type Iter interface {
 	Next(interface{}) bool
+}
+
+type Index struct {
+	Key         []string
+	Background  bool
+	Sparse      bool
+	ExpireAfter time.Duration
+}
+
+type ChangeInfo struct {
+	Updated    int
+	Removed    int
+	UpsertedId interface{}
 }
