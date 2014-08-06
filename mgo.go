@@ -1,10 +1,16 @@
 package dal
 
 import (
+	"encoding/gob"
+	"log"
+
 	"github.com/goincremental/dal/Godeps/_workspace/src/labix.org/v2/mgo"
 	"github.com/goincremental/dal/Godeps/_workspace/src/labix.org/v2/mgo/bson"
-	"log"
 )
+
+func init() {
+	gob.Register(ObjectID(""))
+}
 
 type iter struct {
 	Iter
@@ -57,16 +63,16 @@ func (c *collection) EnsureIndex(index Index) error {
 	return c.col.EnsureIndex(i)
 }
 
-func (c *collection) FindId(id interface{}) Query {
+func (c *collection) FindID(id interface{}) Query {
 	q := c.col.FindId(id)
 	return &query{query: q}
 }
 
-func (c *collection) RemoveId(id interface{}) error {
+func (c *collection) RemoveID(id interface{}) error {
 	return c.col.RemoveId(id)
 }
 
-func (c *collection) UpsertId(id interface{}, update interface{}) (*ChangeInfo, error) {
+func (c *collection) UpsertID(id interface{}, update interface{}) (*ChangeInfo, error) {
 	log.Printf("upsertId")
 	mci, err := c.col.UpsertId(id, update)
 	if err != nil {
@@ -92,22 +98,22 @@ func (d *database) C(name string) Collection {
 	return &collection{col: col}
 }
 
-type session struct {
-	Session
+type connection struct {
+	Connection
 	mgoSession *mgo.Session
 }
 
-func (s *session) Clone() Session {
-	a := s.mgoSession.Clone()
-	return &session{mgoSession: a}
+func (c *connection) Clone() Connection {
+	a := c.mgoSession.Clone()
+	return &connection{mgoSession: a}
 }
 
-func (s *session) Close() {
-	s.mgoSession.Close()
+func (c *connection) Close() {
+	c.mgoSession.Close()
 }
 
-func (s *session) DB(name string) Database {
-	db := s.mgoSession.DB(name)
+func (c *connection) DB(name string) Database {
+	db := c.mgoSession.DB(name)
 	return &database{db: db}
 }
 
@@ -115,38 +121,38 @@ type dal struct {
 	DAL
 }
 
-func (d *dal) Connect(s string) (Session, error) {
+func (d *dal) Connect(s string) (Connection, error) {
 	log.Printf("Connect: %s\n", s)
 	mgoSession, err := mgo.Dial(s)
-	return &session{mgoSession: mgoSession}, err
+	return &connection{mgoSession: mgoSession}, err
 }
 
 func NewDAL() DAL {
 	return &dal{}
 }
 
-type ObjectId string
+type ObjectID string
 
-func (id ObjectId) GetBSON() (interface{}, error) {
+func (id ObjectID) GetBSON() (interface{}, error) {
 	return bson.ObjectId(id), nil
 }
 
-func (id ObjectId) Hex() string {
+func (id ObjectID) Hex() string {
 	return bson.ObjectId(id).Hex()
 }
 
-func (id ObjectId) Valid() bool {
+func (id ObjectID) Valid() bool {
 	return bson.ObjectId(id).Valid()
 }
 
-func ObjectIdHex(s string) ObjectId {
-	return ObjectId(bson.ObjectIdHex(s))
+func ObjectIdHex(s string) ObjectID {
+	return ObjectID(bson.ObjectIdHex(s))
 }
 
 func IsObjectIdHex(s string) bool {
 	return bson.IsObjectIdHex(s)
 }
 
-func NewObjectId() ObjectId {
-	return ObjectId(bson.NewObjectId())
+func NewObjectId() ObjectID {
+	return ObjectID(bson.NewObjectId())
 }

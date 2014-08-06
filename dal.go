@@ -10,12 +10,12 @@ var ErrNotFound = errors.New("ErrNotFound")
 type BSON map[string]interface{}
 
 type DAL interface {
-	Connect(string) (Session, error)
+	Connect(string) (Connection, error)
 	IsObjectIdHex(string) bool
 }
 
-type Session interface {
-	Clone() Session
+type Connection interface {
+	Clone() Connection
 	Close()
 	DB(s string) Database
 }
@@ -27,9 +27,9 @@ type Database interface {
 type Collection interface {
 	Find(BSON) Query
 	EnsureIndex(Index) error
-	FindId(interface{}) Query
-	RemoveId(interface{}) error
-	UpsertId(interface{}, interface{}) (*ChangeInfo, error)
+	FindID(interface{}) Query
+	RemoveID(interface{}) error
+	UpsertID(interface{}, interface{}) (*ChangeInfo, error)
 }
 
 type Query interface {
