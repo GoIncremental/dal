@@ -30,6 +30,8 @@ type Collection interface {
 	FindID(interface{}) Query
 	RemoveID(interface{}) error
 	UpsertID(interface{}, interface{}) (*ChangeInfo, error)
+	Upsert(interface{}, interface{}) (*ChangeInfo, error)
+	Insert(...interface{}) error
 }
 
 type Query interface {

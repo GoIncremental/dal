@@ -73,8 +73,13 @@ func (c *collection) RemoveID(id interface{}) error {
 }
 
 func (c *collection) UpsertID(id interface{}, update interface{}) (*ChangeInfo, error) {
-	log.Printf("upsertId")
-	mci, err := c.col.UpsertId(id, update)
+	return c.Upsert(bson.M{"_id": id}, update)
+}
+
+func (c *collection) Upsert(selector interface{}, update interface{}) (*ChangeInfo, error) {
+	log.Printf("upsert")
+	log.Printf("%+v\n", selector)
+	mci, err := c.col.Upsert(selector, update)
 	if err != nil {
 		log.Printf("error upserting %s\n", err)
 	}
@@ -86,6 +91,10 @@ func (c *collection) UpsertID(id interface{}, update interface{}) (*ChangeInfo, 
 	}
 	log.Printf("change info %s", ci)
 	return ci, err
+}
+
+func (c *collection) Insert(docs ...interface{}) error {
+	return c.col.Insert(docs)
 }
 
 type database struct {
