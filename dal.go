@@ -36,6 +36,7 @@ type Collection interface {
 
 type Query interface {
 	One(interface{}) error
+	All(interface{}) error
 	Sort(...string) Query
 	Iter() Iter
 }

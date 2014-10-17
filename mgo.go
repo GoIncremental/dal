@@ -34,6 +34,14 @@ func (q *query) One(i interface{}) error {
 	return err
 }
 
+func (q *query) All(i interface{}) error {
+	err := q.query.All(i)
+	if err == mgo.ErrNotFound {
+		err = ErrNotFound
+	}
+	return err
+}
+
 func (q *query) Iter() Iter {
 	i := q.query.Iter()
 	return &iter{iter: i}
