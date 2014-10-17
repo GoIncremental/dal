@@ -162,14 +162,25 @@ func (id ObjectID) Valid() bool {
 	return bson.ObjectId(id).Valid()
 }
 
-func ObjectIdHex(s string) ObjectID {
+// MarshalJSON turns a dal.ObjectId into a json.Marshaller.
+func (id ObjectID) MarshalJSON() ([]byte, error) {
+	return bson.ObjectId(id).MarshalJSON()
+}
+
+// UnmarshalJSON turns *dal.ObjectId into a json.Unmarshaller.
+func (id *ObjectID) UnmarshalJSON(data []byte) error {
+	a := bson.ObjectId(*id)
+	return a.UnmarshalJSON(data)
+}
+
+func ObjectIDHex(s string) ObjectID {
 	return ObjectID(bson.ObjectIdHex(s))
 }
 
-func IsObjectIdHex(s string) bool {
+func IsObjectIDHex(s string) bool {
 	return bson.IsObjectIdHex(s)
 }
 
-func NewObjectId() ObjectID {
+func NewObjectID() ObjectID {
 	return ObjectID(bson.NewObjectId())
 }
