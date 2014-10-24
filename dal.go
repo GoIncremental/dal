@@ -32,6 +32,8 @@ type Collection interface {
 	UpsertID(interface{}, interface{}) (*ChangeInfo, error)
 	Upsert(interface{}, interface{}) (*ChangeInfo, error)
 	Insert(...interface{}) error
+	Save(interface{}, interface{}) (*ChangeInfo, error)
+	SaveID(interface{}, interface{}) (*ChangeInfo, error)
 }
 
 type Query interface {

@@ -84,6 +84,14 @@ func (c *collection) UpsertID(id interface{}, update interface{}) (*ChangeInfo, 
 	return c.Upsert(bson.M{"_id": id}, update)
 }
 
+func (c *collection) SaveID(id interface{}, item interface{}) (*ChangeInfo, error) {
+	return c.Upsert(bson.M{"_id": id}, bson.M{"$set": item})
+}
+
+func (c *collection) Save(selector interface{}, update interface{}) (*ChangeInfo, error) {
+	return c.Upsert(selector, bson.M{"$set": update})
+}
+
 func (c *collection) Upsert(selector interface{}, update interface{}) (*ChangeInfo, error) {
 	log.Printf("upsert")
 	log.Printf("%+v\n", selector)
