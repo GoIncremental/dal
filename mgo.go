@@ -176,9 +176,15 @@ func (id ObjectID) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalJSON turns *dal.ObjectId into a json.Unmarshaller.
-func (id *ObjectID) UnmarshalJSON(data []byte) error {
-	a := bson.ObjectId(*id)
-	return a.UnmarshalJSON(data)
+func (id *ObjectID) UnmarshalJSON(data []byte) (err error) {
+	a := bson.NewObjectId()
+	err = a.UnmarshalJSON(data)
+	if err != nil {
+		log.Printf("ERROR: %s\n", err)
+		return
+	}
+	*id = ObjectID(a)
+	return
 }
 
 func ObjectIDHex(s string) ObjectID {
