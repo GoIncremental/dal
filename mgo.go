@@ -93,11 +93,9 @@ func (c *collection) Save(selector interface{}, update interface{}) (*ChangeInfo
 }
 
 func (c *collection) Upsert(selector interface{}, update interface{}) (*ChangeInfo, error) {
-	log.Printf("upsert")
-	log.Printf("%+v\n", selector)
 	mci, err := c.col.Upsert(selector, update)
 	if err != nil {
-		log.Printf("error upserting %s\n", err)
+		log.Printf("Error upserting: %s\n", err)
 	}
 	ci := &ChangeInfo{}
 	if mci != nil {
