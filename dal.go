@@ -41,6 +41,7 @@ type Query interface {
 	All(interface{}) error
 	Sort(...string) Query
 	Iter() Iter
+	Apply(Change, interface{}) (*ChangeInfo, error)
 }
 
 type Iter interface {
@@ -58,4 +59,11 @@ type ChangeInfo struct {
 	Updated    int
 	Removed    int
 	UpsertedId interface{}
+}
+
+type Change struct {
+	Update    interface{}
+	Upsert    bool
+	Remove    bool
+	ReturnNew bool
 }

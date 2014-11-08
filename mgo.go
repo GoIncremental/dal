@@ -22,7 +22,6 @@ func (i *iter) Next(inter interface{}) bool {
 }
 
 type query struct {
-	Query
 	query *mgo.Query
 }
 
@@ -50,6 +49,23 @@ func (q *query) Iter() Iter {
 func (q *query) Sort(s ...string) Query {
 	q2 := q.query.Sort(s...)
 	return &query{query: q2}
+}
+
+func (q *query) Apply(change Change, result interface{}) (info *ChangeInfo, err error) {
+	c := mgo.Change{
+		Update:    change.Update,
+		Upsert:    change.Upsert,
+		Remove:    change.Remove,
+		ReturnNew: change.ReturnNew,
+	}
+	mci, err := q.query.Apply(c, result)
+	info = &ChangeInfo{}
+	if mci != nil {
+		info.Updated = mci.Updated
+		info.Removed = mci.Removed
+		info.UpsertedId = mci.UpsertedId
+	}
+	return
 }
 
 type collection struct {
