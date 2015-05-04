@@ -7,7 +7,7 @@ import (
 
 var ErrNotFound = errors.New("ErrNotFound")
 
-type BSON map[string]interface{}
+type Q map[string]interface{}
 
 type DAL interface {
 	Connect(string) (Connection, error)
@@ -25,7 +25,7 @@ type Database interface {
 }
 
 type Collection interface {
-	Find(BSON) Query
+	Find(Q) Query
 	EnsureIndex(Index) error
 	FindID(interface{}) Query
 	RemoveID(interface{}) error

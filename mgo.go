@@ -72,9 +72,9 @@ type collection struct {
 	col *mgo.Collection
 }
 
-func (c *collection) Find(b BSON) Query {
-	q := c.col.Find(b)
-	return &query{query: q}
+func (c *collection) Find(q Q) Query {
+	bsonQ := c.col.Find(q)
+	return &query{query: bsonQ}
 }
 
 func (c *collection) EnsureIndex(index Index) error {
