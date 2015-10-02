@@ -1,69 +1,36 @@
 package dal
 
-import (
-	"errors"
-	"time"
-)
+import "errors"
 
-var ErrNotFound = errors.New("ErrNotFound")
+var ErrInvalidConnectionString = errors.New("Invalid Connection String")
+var ErrAlreadyConnected = errors.New("Already Connected")
+var ErrNotConnected = errors.New("Not Connected")
 
-type Q map[string]interface{}
+//Query is a simple mapping type that allows
+//clients to filter the data they wish to retrieve
+type Query map[string]interface{}
 
-type DAL interface {
-	Connect(string) (Connection, error)
-	IsObjectIdHex(string) bool
+//ID is required to identify the item being operated on
+type ID interface {
+	IsValid() bool
 }
 
+//Item is an inteface that defines the necessary methods
+//to enable Connection to perform its jobs
+type Item interface {
+	GetID() ID
+}
+
+//Connection is the main interface definition for DAL
+//it defines the contract
 type Connection interface {
-	Clone() Connection
-	Close()
-	DB(s string) Database
-}
-
-type Database interface {
-	C(string) Collection
-}
-
-type Collection interface {
-	Find(Q) Query
-	EnsureIndex(Index) error
-	FindID(interface{}) Query
-	RemoveID(interface{}) error
-	UpsertID(interface{}, interface{}) (*ChangeInfo, error)
-	Upsert(interface{}, interface{}) (*ChangeInfo, error)
-	Insert(...interface{}) error
-	Save(interface{}, interface{}) (*ChangeInfo, error)
-	SaveID(interface{}, interface{}) (*ChangeInfo, error)
-}
-
-type Query interface {
-	One(interface{}) error
-	All(interface{}) error
-	Sort(...string) Query
-	Iter() Iter
-	Apply(Change, interface{}) (*ChangeInfo, error)
-}
-
-type Iter interface {
-	Next(interface{}) bool
-}
-
-type Index struct {
-	Key         []string
-	Background  bool
-	Sparse      bool
-	ExpireAfter time.Duration
-}
-
-type ChangeInfo struct {
-	Updated    int
-	Removed    int
-	UpsertedId interface{}
-}
-
-type Change struct {
-	Update    interface{}
-	Upsert    bool
-	Remove    bool
-	ReturnNew bool
+	Connect(string) (Connection, error)
+	Clone() (Connection, error)
+	Close() error
+	Tag(string) (Connection, error)
+	Create(Item) (interface{}, error)
+	Read(ID) (interface{}, error)
+	// Update(ID, Item) error
+	// Delete(ID) error
+	// Find(Query) (interface{}, error)
 }
